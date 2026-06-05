@@ -1,0 +1,7 @@
+# LittleProxy User Configuration
+# Format: username,password,maxBandwidthBytesPerSecond,blacklistedDomains,enabled
+# Blacklisted domains are separated by semicolons
+username,password,maxBandwidthBytesPerSecond,blacklistedDomains,enabled
+,,0,,true
+user1,user1,1,*.youtube.com,true
+admin,admin123,0,,true

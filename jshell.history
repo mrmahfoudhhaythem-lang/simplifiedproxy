@@ -1,0 +1,6 @@
+VAR#>mvn clean package -Pnetty-4.1
+VAR#>mvn clean package -Pnetty-4.1\
+	;
+VAR#>mvn clean package -Pnetty-4.1;
+VAR#>mvn clean package;
+VAR#>mvn clean
