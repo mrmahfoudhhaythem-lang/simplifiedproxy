@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LittleProxy Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        td {
+            color: #666;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 LittleProxy Admin Panel</h1>
+        <p class="subtitle">Manage proxy users, bandwidth limits, and website restrictions</p>
+
+        <div id="message" class="message"></div>
+
+        <div class="actions">
+            <button onclick="openAddUserModal()">➕ Add New User</button>
+            <button class="secondary" onclick="loadUsers()">🔄 Reload Users</button>
+        </div>
+
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Max Bandwidth</th>
+                    <th>Blacklisted Sites</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px;">Loading users...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add New User</h2>
+            <form id="userForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="username">Username *</label>
+                    <input type="text" id="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="maxBandwidth">Max Bandwidth (bytes/second)</label>
+                    <input type="number" id="maxBandwidth" value="0" min="0">
+                    <div class="help-text">0 = unlimited. Example: 1048576 = 1 MB/s</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="blacklistedDomains">Blacklisted Domains</label>
+                    <textarea id="blacklistedDomains" placeholder="facebook.com;*.youtube.com;twitter.com"></textarea>
+                    <div class="help-text">Separate multiple domains with semicolons. Use *.domain.com for wildcards.</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enabled" checked>
+                        <label for="enabled" style="margin: 0;">User Enabled</label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" onclick="saveUser()">💾 Save User</button>
+                    <button type="button" class="secondary" onclick="closeModal()">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let editingUsername = null;
+
+        // Load users on page load
+        window.onload = function() {
+            loadUsers();
+        };
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123')
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load users');
+                }
+
+                const data = await response.json();
+                displayUsers(data.users);
+            } catch (error) {
+                showMessage('Error loading users: ' + error.message, 'error');
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No users found. Click "Add New User" to create one.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td><strong>${escapeHtml(user.username)}</strong></td>
+                    <td>${'•'.repeat(user.password.length)}</td>
+                    <td>${formatBandwidth(user.maxBandwidth)}</td>
+                    <td>${user.blacklistedDomains.length > 0 ? user.blacklistedDomains.join(', ') : '—'}</td>
+                    <td><span class="badge ${user.enabled ? 'badge-success' : 'badge-danger'}">${user.enabled ? 'Active' : 'Disabled'}</span></td>
+                    <td>
+                        <button class="action-btn" onclick="editUser('${escapeHtml(user.username)}')">✏️ Edit</button>
+                        <button class="action-btn danger" onclick="deleteUser('${escapeHtml(user.username)}')">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatBandwidth(bytes) {
+            if (bytes === 0) return 'Unlimited';
+            if (bytes < 1024) return bytes + ' B/s';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB/s';
+            return (bytes / 1048576).toFixed(2) + ' MB/s';
+        }
+
+        function openAddUserModal() {
+            editingUsername = null;
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('maxBandwidth').value = '0';
+            document.getElementById('enabled').checked = true;
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        async function editUser(username) {
+            try {
+                const response = await fetch('/api/users', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123')
+                    }
+                });
+
+                const data = await response.json();
+                const user = data.users.find(u => u.username === username);
+
+                if (user) {
+                    editingUsername = username;
+                    document.getElementById('modalTitle').textContent = 'Edit User';
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('password').value = user.password;
+                    document.getElementById('maxBandwidth').value = user.maxBandwidth;
+                    document.getElementById('blacklistedDomains').value = user.blacklistedDomains.join(';');
+                    document.getElementById('enabled').checked = user.enabled;
+                    document.getElementById('userModal').classList.add('active');
+                }
+            } catch (error) {
+                showMessage('Error loading user: ' + error.message, 'error');
+            }
+        }
+
+        async function saveUser() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const maxBandwidth = parseInt(document.getElementById('maxBandwidth').value) || 0;
+            const blacklistedDomains = document.getElementById('blacklistedDomains').value;
+            const enabled = document.getElementById('enabled').checked;
+
+            if (!username || !password) {
+                alert('Username and password are required');
+                return;
+            }
+
+            const user = {
+                username: username,
+                password: password,
+                maxBandwidth: maxBandwidth,
+                blacklistedDomains: blacklistedDomains,
+                enabled: enabled
+            };
+
+            try {
+                const url = editingUsername ? `/api/users/${editingUsername}` : '/api/users';
+                const method = editingUsername ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123'),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(user)
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Failed to save user');
+                }
+
+                closeModal();
+                loadUsers();
+                showMessage(result.message || `User ${editingUsername ? 'updated' : 'created'} successfully!`, 'success');
+            } catch (error) {
+                showMessage('Error saving user: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${username}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:admin123')
+                    }
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Failed to delete user');
+                }
+
+                loadUsers();
+                showMessage(result.message || 'User deleted successfully!', 'success');
+            } catch (error) {
+                showMessage('Error deleting user: ' + error.message, 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+            editingUsername = null;
+        }
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message active ' + type;
+            setTimeout(() => {
+                messageEl.classList.remove('active');
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
